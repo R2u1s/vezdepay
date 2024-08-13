@@ -1,49 +1,51 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from "./app.module.css";
 import InputList from '../input_list/InputList';
 import { paymentMethods } from '../constants/payments';
 import { TelegramIcon, VkIcon } from '../icons';
 import { useForm } from '../hooks/useForm';
+import { Loader } from '../loader/loader';
 
 export const INPUT_LOGIN = 'login';
 export const INPUT_AMOUNT = 'amount';
 export const INPUT_TG = 'tg';
 
 export const calcConstants = {
-  service:30,
-  costs:0.175
+  service: 30,
+  costs: 0.175
 }
 
 function App() {
 
   const [payMethod, setPayMethod] = useState(paymentMethods[0].name);
   const [agree, setAgree] = useState<boolean>(false);
+  const [request, setRequest] = useState<boolean>(false);
 
-  const {values, handleChange, setValues} = useForm({
+  const { values, handleChange, setValues } = useForm({
     [INPUT_LOGIN]: '',
     [INPUT_AMOUNT]: '',
     [INPUT_TG]: ''
   });
 
-  const [calc,setCalc] = useState({
-    pay:0,
-    get:0,
-    service:calcConstants.service,
-    costs:0
+  const [calc, setCalc] = useState({
+    pay: 0,
+    get: 0,
+    service: calcConstants.service,
+    costs: 0
   });
 
-  useEffect(()=>{
+  useEffect(() => {
     const newGet = parseInt(values[INPUT_AMOUNT], 10);
-    const newCosts = (newGet + calcConstants.service)*calcConstants.costs;
+    const newCosts = (newGet + calcConstants.service) * calcConstants.costs;
     const newPay = newCosts + newGet + calcConstants.service;
 
     setCalc({
-      pay:newPay,
-      get:newGet,
-      service:calcConstants.service,
+      pay: newPay,
+      get: newGet,
+      service: calcConstants.service,
       costs: newCosts
     });
-  },[values]);
+  }, [values]);
 
   const onClick = (name: string): void => {
     setPayMethod(name);
@@ -51,6 +53,11 @@ function App() {
 
   const onAgreeClick = (): void => {
     setAgree(prev => !prev);
+  }
+
+  const handleSubmit = (event:React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setRequest(prev => !prev);
   }
 
   return (
@@ -63,7 +70,7 @@ function App() {
         </div>
       </header>
       <section className={styles.content}>
-
+        <Loader />
         <h2 className={styles.subtitle}>Пополняй Steam</h2>
         <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p>
 
@@ -110,11 +117,13 @@ function App() {
           </span>
         </div>
 
-        <button type='submit' className={styles.submit}>Пополнить</button>
+        <form onSubmit={handleSubmit}>
+          <button type='submit' className={styles.submit}>{request ? <Loader /> : 'Пополнить'}</button>
+        </form>
 
       </section>
-      <img src={require('../../images/men.png')} className={styles.men}/>
-     
+      <img src={require('../../images/men.png')} className={styles.men} />
+
     </div>
   );
 }
