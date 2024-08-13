@@ -35,7 +35,7 @@ const InputList: React.FC<any> = ({values, handleChange, setValues}) => {
           value={values[INPUT_LOGIN]}
           name={INPUT_LOGIN}
           error={true}
-          errorText={'Ошибка'}
+          errorText={'Введите логин'}
           size={'default'}
         />
         <Input
@@ -49,7 +49,7 @@ const InputList: React.FC<any> = ({values, handleChange, setValues}) => {
           value={values[INPUT_AMOUNT]}
           name={INPUT_AMOUNT}
           error={false}
-          errorText={'Ошибка'}
+          errorText={'Введите желаемую сумму'}
           size={'default'}
 
         />
@@ -63,6 +63,8 @@ const InputList: React.FC<any> = ({values, handleChange, setValues}) => {
           icon={'TelegramIcon'}
           value={values[INPUT_TG]}
           name={INPUT_TG}
+          error={false}
+          errorText={'Введите контактные данные'}
         />
       </form>
   );
