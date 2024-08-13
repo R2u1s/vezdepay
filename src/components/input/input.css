@@ -51,7 +51,7 @@ input:-webkit-autofill:active
   border: 2px solid var(--colors-interface-accent);
 }
 .input_status_error {
-  border: 2px solid var(--colors-interface-error);
+  border: 2px solid red;
 }
 .input_status_disabled{
   cursor: not-allowed;
@@ -113,6 +113,7 @@ input:-webkit-autofill:active
 .input__container {
   width: 100%;
   text-align: left;
+  position: relative;
 }
 
 .visually-hidden {
@@ -137,9 +138,10 @@ input:-webkit-autofill:active
 }
 
 .input__error{
-  margin-left: 24px;
-  margin-top: 2px;
-  color: var(--colors-interface-error);
+  position: absolute;
+  top:73px;
+  left:12px;
+  color: red;
 }
 
 .input__error:-webkit-autofill {

@@ -23,7 +23,7 @@ const InputList: React.FC<any> = ({values, handleChange, setValues}) => {
   const classNameToggle = isInputChange ? `${styles['profile-buttons']}` : `${styles['profile-buttons__hidden']}`
 
   return (
-      <form className={`${styles['profile-inputs']} mt-30`} onSubmit={saveHandler}>
+      <form className={`${styles['profile-inputs']}`} onSubmit={saveHandler}>
         <Input
           type={'text'}
           placeholder={'Ваш логин'}
@@ -34,7 +34,7 @@ const InputList: React.FC<any> = ({values, handleChange, setValues}) => {
           icon={'UserIcon'}
           value={values[INPUT_LOGIN]}
           name={INPUT_LOGIN}
-          error={false}
+          error={true}
           errorText={'Ошибка'}
           size={'default'}
         />

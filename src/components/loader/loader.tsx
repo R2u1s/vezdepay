@@ -5,9 +5,9 @@ export const Loader = () => {
   return (
     <div className={`${styles.loader} ${styles.active}`}>
       <svg width="32" height="32" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg" stroke="#fff">
-        <g fill="none" fill-rule="evenodd">
-          <g transform="translate(2 2)" stroke-width="4">
-            <circle stroke-opacity=".5" cx="18" cy="18" r="18" />
+        <g fill="none" fillRule="evenodd">
+          <g transform="translate(2 2)" strokeWidth="4">
+            <circle strokeOpacity=".5" cx="18" cy="18" r="18" />
             <path d="M36 18c0-9.94-8.06-18-18-18">
               <animateTransform
                 attributeName="transform"

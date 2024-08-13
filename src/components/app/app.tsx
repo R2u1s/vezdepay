@@ -5,6 +5,8 @@ import { paymentMethods } from '../constants/payments';
 import { TelegramIcon, VkIcon } from '../icons';
 import { useForm } from '../hooks/useForm';
 import { Loader } from '../loader/loader';
+import { postPayment } from '../utils/api';
+import { useNavigate } from 'react-router-dom';
 
 export const INPUT_LOGIN = 'login';
 export const INPUT_AMOUNT = 'amount';
@@ -15,11 +17,30 @@ export const calcConstants = {
   costs: 0.175
 }
 
+export type TRequest = {
+  request: boolean,
+  successLink: boolean,
+  successPayment: boolean,
+  errorLink:boolean,
+  errorPayment:boolean,
+}
+
+export const initialState: TRequest = {
+  request: false,
+  successLink: false,
+  successPayment: false,
+  errorLink:false,
+  errorPayment:false
+}
+
 function App() {
+
+  const navigate = useNavigate();
 
   const [payMethod, setPayMethod] = useState(paymentMethods[0].name);
   const [agree, setAgree] = useState<boolean>(false);
-  const [request, setRequest] = useState<boolean>(false);
+  const [request, setRequest] = useState<TRequest>(initialState);
+  const [buttonText, setButtonText] = useState<string>('Пополнить');
 
   const { values, handleChange, setValues } = useForm({
     [INPUT_LOGIN]: '',
@@ -55,9 +76,39 @@ function App() {
     setAgree(prev => !prev);
   }
 
-  const handleSubmit = (event:React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setRequest(prev => !prev);
+    setRequest({
+      ...request,
+      request:true
+    });
+    postPayment()
+      .then((data) => {
+        if (data.status === 'success') {
+          setButtonText('Переходим к оплате...');
+          setRequest({
+            ...request,
+            request:false,
+            successLink:true,
+          });
+          navigate(`${data.data.link}`);
+          console.log(data);
+        } else if (data.status === 'error') {
+          setButtonText(`Ошибка: ${data.data.message}`);
+          setRequest({
+            ...request,
+            request:false,
+            errorLink:true,
+          });
+          console.log(data);
+        } else {
+          setButtonText('Ошибка');
+          console.log(data);
+        }
+      })
+      .catch(error => {
+        console.error('Error: ', error);
+      });;
   }
 
   return (
@@ -70,7 +121,7 @@ function App() {
         </div>
       </header>
       <section className={styles.content}>
-        
+
         <h2 className={styles.subtitle}>Пополняй Steam</h2>
         <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p>
 
@@ -118,7 +169,7 @@ function App() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <button type='submit' className={styles.submit}>{request ? <Loader /> : 'Пополнить'}</button>
+          <button type='submit' className={styles.submit} disabled={request.errorLink || request.errorPayment}>{request.request ? <Loader /> : buttonText}</button>
         </form>
 
       </section>
