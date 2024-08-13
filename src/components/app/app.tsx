@@ -70,7 +70,7 @@ function App() {
         </div>
       </header>
       <section className={styles.content}>
-        <Loader />
+        
         <h2 className={styles.subtitle}>Пополняй Steam</h2>
         <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p>
 
