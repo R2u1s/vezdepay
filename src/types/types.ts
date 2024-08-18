@@ -40,3 +40,10 @@ export type TButtonText = string
 export type TLink = string
 
 export type TErrorInput = Record<InputName, boolean>;
+
+export interface TModal {
+  active: boolean;
+  setActive?: () => void;
+  setClose: () => void;
+  children?: React.ReactNode;
+}

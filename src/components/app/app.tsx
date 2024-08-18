@@ -4,12 +4,15 @@ import InputList from '../input_list/InputList';
 import { PAYMENT_METHOD } from '../constants/payments';
 import { TelegramIcon, VkIcon } from '../icons';
 import { useForm } from '../hooks/useForm';
+import { useModal } from '../hooks/useModal';
 import { Loader } from '../loader/loader';
 import { apiGetLink } from '../../utils/api';
 import { initialState, requestReducer } from '../../services/requestReducer';
 import { areAllValuesTrue, hasEmptyValue, isHttpsUrl } from '../../utils/utils';
 import { Calc } from '../calc/calc';
 import { InputName } from '../../utils/constants';
+import { Footer } from '../footer/footer';
+import Modal from '../modal/modal';
 
 function App() {
 
@@ -18,7 +21,9 @@ function App() {
   const [request, dispatchRequest] = useReducer(requestReducer, initialState);
   const [link, setLink] = useState<string | undefined>('');
   const [buttonText, setButtonText] = useState<string | undefined>('Пополнить');
-  const [resultAmount,setResultAmount] = useState(0);
+  const [resultAmount, setResultAmount] = useState(0);
+
+  const { isModalOpen, openModal, closeModal } = useModal();
 
   const { values, handleChange, setValues } = useForm({
     [InputName.LOGIN]: '',
@@ -27,10 +32,10 @@ function App() {
   });
 
   useEffect(() => {
-      const storedCart = localStorage.getItem('payment');
-      if (storedCart) {
-        setValues(JSON.parse(storedCart));
-      }
+    const storedCart = localStorage.getItem('payment');
+    if (storedCart) {
+      setValues(JSON.parse(storedCart));
+    }
   }, []);
 
   const onClick = (name: string): void => {
@@ -41,20 +46,20 @@ function App() {
     const prev = agree;
     setValidation({
       ...validation,
-      approve:!prev
+      approve: !prev
     });
     setAgree(!prev);
   }
 
-  const [validation,setValidation] = useState({
-    [InputName.LOGIN]:true,
-    [InputName.AMOUNT]:true,
-    [InputName.TG]:true,
+  const [validation, setValidation] = useState({
+    [InputName.LOGIN]: true,
+    [InputName.AMOUNT]: true,
+    [InputName.TG]: true,
     approve: agree,
     check: false
   });
 
-  const checkInputs = ():boolean => {
+  const checkInputs = (): boolean => {
     setValidation({
       ...validation,
       check: true
@@ -68,15 +73,15 @@ function App() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    checkInputs() && apiGetLink(values,dispatchRequest,setLink,setButtonText);
+    checkInputs() && apiGetLink(values, dispatchRequest, setLink, setButtonText);
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     if (request.successLink && link && isHttpsUrl(link)) {
       localStorage.setItem('payment', JSON.stringify(values));
       window.location.href = link;
     }
-  },[link]);
+  }, [link]);
 
   return (
     <div className={styles.app}>
@@ -87,7 +92,7 @@ function App() {
           <div style={{ cursor: 'pointer', marginTop: '2px' }}>{TelegramIcon({ type: 'socials' })}</div>
         </div>
       </header>
-      <div className={styles.content}>
+      <main className={styles.content}>
 
         <h2 className={styles.subtitle}>Пополняй Steam</h2>
         <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p>
@@ -116,13 +121,22 @@ function App() {
         {!validation.approve && validation.check && <p className={styles.agree__error}>Нужно ознакомиться с условиями пользовательского соглашения и разделом FAQ</p>}
 
         <form onSubmit={handleSubmit}>
-          <button type='submit' className={styles.submit} disabled={request.errorLink || request.errorPayment}>{request.requestLink ? <Loader /> : buttonText}</button>
+          <button
+            type='submit'
+            className={styles.submit}
+            disabled={request.errorLink || request.errorPayment || request.requestLink}>
+            <span>{request.requestLink ? <Loader /> : buttonText}</span>
+          </button>
         </form>
 
-      </div>
+      </main>
+      <Footer onClickElement={openModal} />
       <img src={require('../../images/men.png')} className={styles.men} />
-
+      <Modal active={isModalOpen} setActive={openModal} setClose={closeModal}>
+        <p>Текст в модальном окне</p>
+      </Modal>
     </div>
+    
   );
 }
 
