@@ -1,26 +1,18 @@
-import React from 'react';
+import React, { useEffect,useState } from 'react';
 import styles from './InputList.module.css';
 import { Input } from '../input/input';
-import { INPUT_LOGIN,INPUT_AMOUNT,INPUT_TG } from '../app/app';
+import { InputName } from '../../utils/constants';
+import { updateFlagsIfEmpty } from '../../utils/utils';
 
-const InputList: React.FC<any> = ({values, handleChange, setValues}) => {
-
-  const [isInputChange, setIsInputChange] = React.useState<boolean>(false);
-
-  const cancelHandler = () => {
-    setIsInputChange(false);
-    setValues({
-      [INPUT_LOGIN]: '',
-      [INPUT_AMOUNT]: '',
-      [INPUT_TG]: ''
-    });
-  }
+const InputList: React.FC<any> = ({values, handleChange, validation, setValidation}) => {
 
   const saveHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   }
 
-  const classNameToggle = isInputChange ? `${styles['profile-buttons']}` : `${styles['profile-buttons__hidden']}`
+  useEffect(()=>{
+    validation.check && setValidation(updateFlagsIfEmpty(validation,values));
+  },[values,validation.check]);
 
   return (
       <form className={`${styles['profile-inputs']}`} onSubmit={saveHandler}>
@@ -28,13 +20,12 @@ const InputList: React.FC<any> = ({values, handleChange, setValues}) => {
           type={'text'}
           placeholder={'Ваш логин'}
           onChange={e => {
-            setIsInputChange(true);
-            handleChange(e);
+            handleChange(e)
           }}
           icon={'UserIcon'}
-          value={values[INPUT_LOGIN]}
-          name={INPUT_LOGIN}
-          error={true}
+          value={values[InputName.LOGIN]}
+          name={InputName.LOGIN}
+          error={!validation[InputName.LOGIN]}
           errorText={'Введите логин'}
           size={'default'}
         />
@@ -42,13 +33,12 @@ const InputList: React.FC<any> = ({values, handleChange, setValues}) => {
           type={'number'}
           placeholder={'Сумма пополнения'}
           onChange={e => {
-            setIsInputChange(true);
             handleChange(e);
           }}
           icon={'CardIcon'}
-          value={values[INPUT_AMOUNT]}
-          name={INPUT_AMOUNT}
-          error={false}
+          value={values[InputName.AMOUNT]}
+          name={InputName.AMOUNT}
+          error={!validation[InputName.AMOUNT]}
           errorText={'Введите желаемую сумму'}
           size={'default'}
 
@@ -57,13 +47,12 @@ const InputList: React.FC<any> = ({values, handleChange, setValues}) => {
           type={'text'}
           placeholder={'Номер телефона / ник в ТГ'}
           onChange={e => {
-            setIsInputChange(true);
             handleChange(e);
           }}
           icon={'TelegramIcon'}
-          value={values[INPUT_TG]}
-          name={INPUT_TG}
-          error={false}
+          value={values[InputName.TG]}
+          name={InputName.TG}
+          error={!validation[InputName.TG]}
           errorText={'Введите контактные данные'}
         />
       </form>

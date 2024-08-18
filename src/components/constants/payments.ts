@@ -1,4 +1,4 @@
-export const paymentMethods = [
+export const PAYMENT_METHOD = [
   {
     name: "СБП",
     url: "https://optim.tildacdn.com/tild6636-6132-4262-b461-616431333265/-/cover/141x141/left/top/-/format/webp/1.jpg"

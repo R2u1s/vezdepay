@@ -1,15 +1,12 @@
 import React from 'react';
-
-interface TInputValues {
-  [value:string]: string;
-}
+import { TInputValues } from '../../types/types';
 
 export function useForm(inputValues:TInputValues):{
   values:typeof inputValues,
   handleChange:(event:React.ChangeEvent<HTMLInputElement>)=>void,
-  setValues:(values:{})=>void
+  setValues:(values:TInputValues)=>void
 } {
-  const [values, setValues] = React.useState<{}>(inputValues);
+  const [values, setValues] = React.useState<TInputValues>(inputValues);
 
   const handleChange = (event:React.ChangeEvent<HTMLInputElement>) => {
     const {value, name} = event.target;

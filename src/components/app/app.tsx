@@ -1,115 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import styles from "./app.module.css";
 import InputList from '../input_list/InputList';
-import { paymentMethods } from '../constants/payments';
+import { PAYMENT_METHOD } from '../constants/payments';
 import { TelegramIcon, VkIcon } from '../icons';
 import { useForm } from '../hooks/useForm';
 import { Loader } from '../loader/loader';
-import { postPayment } from '../utils/api';
-import { useNavigate } from 'react-router-dom';
-
-export const INPUT_LOGIN = 'login';
-export const INPUT_AMOUNT = 'amount';
-export const INPUT_TG = 'tg';
-
-export const calcConstants = {
-  service: 30,
-  costs: 0.175
-}
-
-export type TRequest = {
-  request: boolean,
-  successLink: boolean,
-  successPayment: boolean,
-  errorLink:boolean,
-  errorPayment:boolean,
-}
-
-export const initialState: TRequest = {
-  request: false,
-  successLink: false,
-  successPayment: false,
-  errorLink:false,
-  errorPayment:false
-}
+import { apiGetLink } from '../../utils/api';
+import { initialState, requestReducer } from '../../services/requestReducer';
+import { areAllValuesTrue, hasEmptyValue, isHttpsUrl } from '../../utils/utils';
+import { Calc } from '../calc/calc';
+import { InputName } from '../../utils/constants';
 
 function App() {
 
-  const navigate = useNavigate();
-
-  const [payMethod, setPayMethod] = useState(paymentMethods[0].name);
+  const [payMethod, setPayMethod] = useState(PAYMENT_METHOD[0].name);
   const [agree, setAgree] = useState<boolean>(false);
-  const [request, setRequest] = useState<TRequest>(initialState);
-  const [buttonText, setButtonText] = useState<string>('Пополнить');
+  const [request, dispatchRequest] = useReducer(requestReducer, initialState);
+  const [link, setLink] = useState<string | undefined>('');
+  const [buttonText, setButtonText] = useState<string | undefined>('Пополнить');
+  const [resultAmount,setResultAmount] = useState(0);
 
   const { values, handleChange, setValues } = useForm({
-    [INPUT_LOGIN]: '',
-    [INPUT_AMOUNT]: '',
-    [INPUT_TG]: ''
-  });
-
-  const [calc, setCalc] = useState({
-    pay: 0,
-    get: 0,
-    service: calcConstants.service,
-    costs: 0
+    [InputName.LOGIN]: '',
+    [InputName.AMOUNT]: '',
+    [InputName.TG]: ''
   });
 
   useEffect(() => {
-    const newGet = parseInt(values[INPUT_AMOUNT], 10);
-    const newCosts = (newGet + calcConstants.service) * calcConstants.costs;
-    const newPay = newCosts + newGet + calcConstants.service;
-
-    setCalc({
-      pay: newPay,
-      get: newGet,
-      service: calcConstants.service,
-      costs: newCosts
-    });
-  }, [values]);
+      const storedCart = localStorage.getItem('payment');
+      if (storedCart) {
+        setValues(JSON.parse(storedCart));
+      }
+  }, []);
 
   const onClick = (name: string): void => {
     setPayMethod(name);
   }
 
   const onAgreeClick = (): void => {
-    setAgree(prev => !prev);
+    const prev = agree;
+    setValidation({
+      ...validation,
+      approve:!prev
+    });
+    setAgree(!prev);
+  }
+
+  const [validation,setValidation] = useState({
+    [InputName.LOGIN]:true,
+    [InputName.AMOUNT]:true,
+    [InputName.TG]:true,
+    approve: agree,
+    check: false
+  });
+
+  const checkInputs = ():boolean => {
+    setValidation({
+      ...validation,
+      check: true
+    });
+    if (areAllValuesTrue(validation)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setRequest({
-      ...request,
-      request:true
-    });
-    postPayment()
-      .then((data) => {
-        if (data.status === 'success') {
-          setButtonText('Переходим к оплате...');
-          setRequest({
-            ...request,
-            request:false,
-            successLink:true,
-          });
-          navigate(`${data.data.link}`);
-          console.log(data);
-        } else if (data.status === 'error') {
-          setButtonText(`Ошибка: ${data.data.message}`);
-          setRequest({
-            ...request,
-            request:false,
-            errorLink:true,
-          });
-          console.log(data);
-        } else {
-          setButtonText('Ошибка');
-          console.log(data);
-        }
-      })
-      .catch(error => {
-        console.error('Error: ', error);
-      });;
+    checkInputs() && apiGetLink(values,dispatchRequest,setLink,setButtonText);
   }
+
+  useEffect(()=>{
+    if (request.successLink && link && isHttpsUrl(link)) {
+      localStorage.setItem('payment', JSON.stringify(values));
+      window.location.href = link;
+    }
+  },[link]);
 
   return (
     <div className={styles.app}>
@@ -120,40 +87,19 @@ function App() {
           <div style={{ cursor: 'pointer', marginTop: '2px' }}>{TelegramIcon({ type: 'socials' })}</div>
         </div>
       </header>
-      <section className={styles.content}>
+      <div className={styles.content}>
 
         <h2 className={styles.subtitle}>Пополняй Steam</h2>
         <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p>
 
-        <InputList values={values} handleChange={handleChange} setValues={setValues} />
+        <InputList values={values} handleChange={handleChange} validation={validation} setValidation={setValidation} />
 
-        <div className={styles.calc}>
-          <div className={styles.calc__string}>
-            <span className={styles.calc__text}>Заплатите:</span>
-            <div className={styles.calc__line}></div>
-            <span className={styles.calc__price}>{values[INPUT_AMOUNT] ? calc.pay : 0} ₽</span>
-          </div>
-          <div className={styles.calc__string}>
-            <span className={styles.calc__text}>Получите на баланс Steam:</span>
-            <div className={styles.calc__line}></div>
-            <span className={styles.calc__price}>{values[INPUT_AMOUNT] ? calc.get : 0} ₽</span>
-          </div>
-          <div className={styles.calc__string}>
-            <span className={styles.calc__text}>Комиссия сервиса:</span>
-            <div className={styles.calc__line}></div>
-            <span className={styles.calc__price}>{values[INPUT_AMOUNT] ? calc.service : 0} ₽</span>
-          </div>
-          <div className={styles.calc__string}>
-            <span className={styles.calc__text}>Банковские издержки:</span>
-            <div className={styles.calc__line}></div>
-            <span className={styles.calc__price}>{values[INPUT_AMOUNT] ? calc.costs : 0} ₽</span>
-          </div>
-        </div>
+        <Calc amount={values[InputName.AMOUNT]} />
 
         <p className={styles.text}>Выбор платежной системы</p>
 
         <ul className={styles.payments}>
-          {paymentMethods.map((item, index) => {
+          {PAYMENT_METHOD.map((item, index) => {
             return <li className={`${styles.payment} ${item.name === payMethod ? styles.payment__active : ""}`} key={index}>
               <button className={styles.payments__icon} onClick={() => onClick(item.name)} style={{ backgroundImage: `url(${item.url})` }}></button>
               {item.name === payMethod && <span className={styles.payment__checkmark}>✔</span>}
@@ -167,12 +113,13 @@ function App() {
           <span className={styles.agree__text}>Я принимаю условия Пользовательского соглашения и подтверждаю ознакомление с FAQ
           </span>
         </div>
+        {!validation.approve && validation.check && <p className={styles.agree__error}>Нужно ознакомиться с условиями пользовательского соглашения и разделом FAQ</p>}
 
         <form onSubmit={handleSubmit}>
-          <button type='submit' className={styles.submit} disabled={request.errorLink || request.errorPayment}>{request.request ? <Loader /> : buttonText}</button>
+          <button type='submit' className={styles.submit} disabled={request.errorLink || request.errorPayment}>{request.requestLink ? <Loader /> : buttonText}</button>
         </form>
 
-      </section>
+      </div>
       <img src={require('../../images/men.png')} className={styles.men} />
 
     </div>
