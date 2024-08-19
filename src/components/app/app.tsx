@@ -13,6 +13,7 @@ import { Calc } from '../calc/calc';
 import { InputName } from '../../utils/constants';
 import { Footer } from '../footer/footer';
 import Modal from '../modal/modal';
+import { Contacts } from '../modal/contacts/contacts';
 
 function App() {
 
@@ -133,7 +134,7 @@ function App() {
       <Footer onClickElement={openModal} />
       <img src={require('../../images/men.png')} className={styles.men} />
       <Modal active={isModalOpen} setActive={openModal} setClose={closeModal}>
-        <p>Текст в модальном окне</p>
+        <Contacts />
       </Modal>
     </div>
     

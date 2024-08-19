@@ -5,7 +5,8 @@
   padding: 40px 40px 60px 40px;
   width: 720px;
   max-width: calc(100% - 24px);
-  background-color: #1C1C21;
+  min-width: 300px;
+  background-color: #333333;
   border-radius: 40px;
   z-index: 1;
   visibility: hidden;
@@ -25,10 +26,16 @@
   position:absolute;
   top:35px;
   right:25px;
-  background-color: #1C1C21;
+  background-color: #333333;
   border: none;
   cursor: pointer;
   transform: scale(1.5);
+  transition: transform 0.3s ease;
+}
+
+.modal__close-button:hover {
+  transform: scale(1.7);
+  
 }
 
 .modalOverlay {
