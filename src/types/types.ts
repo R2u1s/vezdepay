@@ -3,15 +3,32 @@ import { Action, InputName } from "../utils/constants";
 export type TInputValues = Record<InputName, string>;
 
 export type TRequest = {
+  requestSettings: boolean,
   requestLink: boolean,
   requestPayment: boolean,
+  successSettings: boolean,
   successLink: boolean,
   successPayment: boolean,
+  errorSettings: boolean,
   errorLink:boolean,
   errorPayment:boolean,
 }
 
 export type TAction = Action;
+
+export type TSettings = {
+  id:string,
+  name: string,
+  service_fee: number,
+  costs: number
+}
+
+export type TSettingsResponse = {
+  id:string,
+  name: string,
+  service_fee: string,
+  costs: string
+}
 
 export interface ILinkResponse {
   status: string,

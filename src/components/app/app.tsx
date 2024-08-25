@@ -6,7 +6,7 @@ import { TelegramIcon, VkIcon } from '../icons';
 import { useForm } from '../hooks/useForm';
 import { useModal } from '../hooks/useModal';
 import { Loader } from '../loader/loader';
-import { apiGetLink } from '../../utils/api';
+import { apiGetLink, apiGetSettings } from '../../utils/api';
 import { initialState, requestReducer } from '../../services/requestReducer';
 import { areAllValuesTrue, hasEmptyValue, isHttpsUrl } from '../../utils/utils';
 import { Calc } from '../calc/calc';
@@ -14,6 +14,7 @@ import { InputName } from '../../utils/constants';
 import { Footer } from '../footer/footer';
 import Modal from '../modal/modal';
 import { Contacts } from '../modal/contacts/contacts';
+import { TSettings } from '../../types/types';
 
 function App() {
 
@@ -22,7 +23,8 @@ function App() {
   const [request, dispatchRequest] = useReducer(requestReducer, initialState);
   const [link, setLink] = useState<string | undefined>('');
   const [buttonText, setButtonText] = useState<string | undefined>('Пополнить');
-  const [resultAmount, setResultAmount] = useState(0);
+  const [settings, setSettings] = useState<TSettings | undefined>();
+  const [resultAmount, setResultAmount] = useState<number>(0);
 
   const { isModalOpen, openModal, closeModal } = useModal();
 
@@ -36,7 +38,8 @@ function App() {
     const storedCart = localStorage.getItem('payment');
     if (storedCart) {
       setValues(JSON.parse(storedCart));
-    }
+    };
+    apiGetSettings(dispatchRequest, setSettings, setButtonText);
   }, []);
 
   const onClick = (name: string): void => {
@@ -74,7 +77,9 @@ function App() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    checkInputs() && apiGetLink(values, dispatchRequest, setLink, setButtonText);
+    if (checkInputs() && request.successSettings) {
+      apiGetLink(values, resultAmount, dispatchRequest, setLink, setButtonText);
+    }
   }
 
   useEffect(() => {
@@ -100,7 +105,7 @@ function App() {
 
         <InputList values={values} handleChange={handleChange} validation={validation} setValidation={setValidation} />
 
-        <Calc amount={values[InputName.AMOUNT]} />
+        <Calc amount={values[InputName.AMOUNT]} loader={request.requestSettings} service_fee={settings?.service_fee} costs={settings?.costs} setResultAmount={setResultAmount} />
 
         <p className={styles.text}>Выбор платежной системы</p>
 
@@ -125,7 +130,7 @@ function App() {
           <button
             type='submit'
             className={styles.submit}
-            disabled={request.errorLink || request.errorPayment || request.requestLink}>
+            disabled={request.errorLink || request.errorPayment || request.errorSettings || request.requestLink || request.requestSettings || request.requestPayment}>
             <span>{request.requestLink ? <Loader /> : buttonText}</span>
           </button>
         </form>
@@ -137,7 +142,7 @@ function App() {
         <Contacts />
       </Modal>
     </div>
-    
+
   );
 }
 

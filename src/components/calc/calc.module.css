@@ -12,6 +12,25 @@
   cursor: text;
   background-color: rgba(33, 33, 44, 0.8);
   border-radius: 12px;
+  position: relative;
+}
+
+.calc__loader {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width:100%;
+  height:100%;
+  background-color: rgba(250, 250, 250, 0.4); /* Изначально прозрачный */
+  border-radius: 12px;
+  transition: background-color 0.3s;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .calc__string {
