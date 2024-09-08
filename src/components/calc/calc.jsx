@@ -15,7 +15,7 @@ export const Calc = ({ amount, loader, service_fee, costs, setResultAmount }) =>
   });
 
   useEffect(() => {
-    if (service_fee && costs) {
+    if (service_fee !== undefined && costs !== undefined) {
       const newGet = parseFloat(amount);
       const newCosts = (newGet + service_fee) * costs;
       const newPay = newCosts + newGet + service_fee;

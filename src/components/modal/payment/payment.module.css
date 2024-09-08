@@ -1,0 +1,42 @@
+.payments {
+  margin: 0 auto;
+  max-width: 260px;
+  padding:0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.payments__text {
+  margin: 0;
+  padding:0;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.2;
+  color:white;
+  text-align: center;
+}
+
+.payments__link {
+  margin: 0;
+  padding:0;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.2;
+  color:#ff8562;
+}
+
+.payments__margin {
+  margin-top:25px;
+}
+
+.payments__marginmin {
+  margin-top:10px;
+}
+
+.payments__colortext {
+  color:#ff8562; 
+}
+

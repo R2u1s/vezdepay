@@ -1,4 +1,4 @@
-import { Action, InputName } from "../utils/constants";
+import { Action, InputName, ModalContent } from "../utils/constants";
 
 export type TInputValues = Record<InputName, string>;
 
@@ -20,14 +20,22 @@ export type TSettings = {
   id:string,
   name: string,
   service_fee: number,
-  costs: number
+  costs: number,
+  card_number?: string,
+  card_bank?: string,
+  phone_number?: string,
+  phone_bank?: string
 }
 
 export type TSettingsResponse = {
   id:string,
   name: string,
   service_fee: string,
-  costs: string
+  costs: string,
+  card_number: string,
+  card_bank: string,
+  phone_number: string,
+  phone_bank: string
 }
 
 export interface ILinkResponse {
@@ -43,12 +51,9 @@ export interface ILinkResponse {
 }
 
 export interface ILinkPayload {
-  merchant_id: string;
-  secret: string;
   order_id: string;
   account: string;
   amount: number;
-  currency: string;
   description: string;
   customer: string;
 }
@@ -63,4 +68,9 @@ export interface TModal {
   setActive?: () => void;
   setClose: () => void;
   children?: React.ReactNode;
+}
+
+export interface TModalContent extends TModal {
+  content: ModalContent,
+  settings: TSettings | undefined
 }

@@ -12,6 +12,12 @@ const InputList: React.FC<any> = ({values, handleChange, validation, setValidati
 
   useEffect(()=>{
     validation.check && setValidation(updateFlagsIfEmpty(validation,values));
+    if(values[InputName.AMOUNT] < 150){
+      setValidation({
+        ...validation,
+        [InputName.AMOUNT]: false,
+      });
+    }
   },[values,validation.check]);
 
   return (
@@ -39,7 +45,7 @@ const InputList: React.FC<any> = ({values, handleChange, validation, setValidati
           value={values[InputName.AMOUNT]}
           name={InputName.AMOUNT}
           error={!validation[InputName.AMOUNT]}
-          errorText={'Введите желаемую сумму'}
+          errorText={values[InputName.AMOUNT] === '' ? 'Введите желаемую сумму пополнения' : 'Сумма пополнения должна быть больше 150 руб.'}
           size={'default'}
 
         />

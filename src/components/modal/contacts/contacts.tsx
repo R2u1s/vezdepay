@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import FC from "react";
 import styles from './contacts.module.css';
 
 export const Contacts = () => {

@@ -1,0 +1,69 @@
+.agreement {
+  margin: 0 auto;
+  max-width: 640px;
+  padding:0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.agreement__container {
+  max-height: 480px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.agreement__container::-webkit-scrollbar {
+  width: 8px;             /* ширина scrollbar */
+}
+
+.agreement__container::-webkit-scrollbar-track {
+  background: transparent;        /* цвет дорожки */
+}
+.agreement__container::-webkit-scrollbar-thumb {
+  background-color: grey;    /* цвет плашки */
+}
+
+.agreement__title {
+  margin: 0;
+  margin-bottom:15px;
+  padding:0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  color:white;
+}
+
+.agreement__subtitle {
+  margin: 0;
+  margin-top:35px;
+  padding:0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  color:#ff8562;
+}
+
+.agreement__text {
+  margin: 0;
+  margin-top: 8px;
+  padding:0;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.2;
+  color:white;
+}
+
+.agreement__link {
+  margin: 0;
+  display:inline-block;
+  padding:0;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.2;
+  color:#ff8562;
+}
+

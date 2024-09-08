@@ -10,11 +10,13 @@ import { apiGetLink, apiGetSettings } from '../../utils/api';
 import { initialState, requestReducer } from '../../services/requestReducer';
 import { areAllValuesTrue, hasEmptyValue, isHttpsUrl } from '../../utils/utils';
 import { Calc } from '../calc/calc';
-import { InputName } from '../../utils/constants';
+import { InputName, ModalContent } from '../../utils/constants';
 import { Footer } from '../footer/footer';
 import Modal from '../modal/modal';
 import { Contacts } from '../modal/contacts/contacts';
 import { TSettings } from '../../types/types';
+import { ModalComponent } from '../modal/modal_component';
+import { Rating } from '../rating/rating';
 
 function App() {
 
@@ -25,6 +27,7 @@ function App() {
   const [buttonText, setButtonText] = useState<string | undefined>('Пополнить');
   const [settings, setSettings] = useState<TSettings | undefined>();
   const [resultAmount, setResultAmount] = useState<number>(0);
+  const [modalContent, setModalContent] = useState<ModalContent>(ModalContent.CONTACTS);
 
   const { isModalOpen, openModal, closeModal } = useModal();
 
@@ -59,7 +62,7 @@ function App() {
     [InputName.LOGIN]: true,
     [InputName.AMOUNT]: true,
     [InputName.TG]: true,
-    approve: agree,
+    approve: false,
     check: false
   });
 
@@ -68,7 +71,11 @@ function App() {
       ...validation,
       check: true
     });
-    if (areAllValuesTrue(validation)) {
+    const tempValidation = {
+      ...validation,
+      check: true
+    };
+    if (areAllValuesTrue(tempValidation)) {
       return true;
     } else {
       return false;
@@ -77,9 +84,25 @@ function App() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (checkInputs() && request.successSettings) {
-      apiGetLink(values, resultAmount, dispatchRequest, setLink, setButtonText);
+    if (checkInputs() && request.successSettings && settings) {
+      if (settings.name === 'nicepay') {
+        apiGetLink(values, resultAmount, dispatchRequest, setLink, setButtonText);
+      }
+      if (settings.name === 'sbp') {
+        setModalContent(ModalContent.PAYMENT);
+        openModal();
+      }
     }
+  }
+
+  const onAgreeStringClick = () => {
+    setModalContent(ModalContent.AGREEMENT);
+    openModal();
+  }
+
+  const onFaqStringClick = () => {
+    setModalContent(ModalContent.FAQ);
+    openModal();
   }
 
   useEffect(() => {
@@ -95,14 +118,14 @@ function App() {
         <h1 className={styles.title}>VEZDEPAY</h1>
         <div className={styles.header__socials}>
           <div style={{ cursor: 'pointer' }}>{VkIcon({ type: 'socials' })}</div>
-          <div style={{ cursor: 'pointer', marginTop: '2px' }}>{TelegramIcon({ type: 'socials' })}</div>
+          <a href="https://t.me/Vezdepaycom" target="_blank" style={{ cursor: 'pointer', marginTop: '2px' }}>{TelegramIcon({ type: 'socials' })}</a>
         </div>
       </header>
       <main className={styles.content}>
 
         <h2 className={styles.subtitle}>Пополняй Steam</h2>
-        <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p>
-
+       {/* <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p> */}
+        <Rating />
         <InputList values={values} handleChange={handleChange} validation={validation} setValidation={setValidation} />
 
         <Calc amount={values[InputName.AMOUNT]} loader={request.requestSettings} service_fee={settings?.service_fee} costs={settings?.costs} setResultAmount={setResultAmount} />
@@ -121,7 +144,9 @@ function App() {
 
         <div className={styles.agree}>
           <button className={`${styles.agree__checkmark} ${agree ? styles.agree__checkmark_active : ""}`} onClick={onAgreeClick}>{agree && "✔"}</button>
-          <span className={styles.agree__text}>Я принимаю условия Пользовательского соглашения и подтверждаю ознакомление с FAQ
+          <span className={styles.agree__text}>Я принимаю условия{'\u00A0'}
+            <span className={styles.agree__link} onClick={onAgreeStringClick}>Пользовательского соглашения</span> и подтверждаю ознакомление с{'\u00A0'}
+            <span className={styles.agree__link} onClick={onFaqStringClick}>FAQ</span>
           </span>
         </div>
         {!validation.approve && validation.check && <p className={styles.agree__error}>Нужно ознакомиться с условиями пользовательского соглашения и разделом FAQ</p>}
@@ -136,11 +161,9 @@ function App() {
         </form>
 
       </main>
-      <Footer onClickElement={openModal} />
+      <Footer onClickElement={openModal} setModalContent={setModalContent} />
       <img src={require('../../images/men.png')} className={styles.men} />
-      <Modal active={isModalOpen} setActive={openModal} setClose={closeModal}>
-        <Contacts />
-      </Modal>
+      {<ModalComponent active={isModalOpen} setActive={openModal} setClose={closeModal} content={modalContent} settings={settings} />}
     </div>
 
   );

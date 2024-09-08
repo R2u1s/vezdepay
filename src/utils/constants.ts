@@ -28,3 +28,12 @@ export const CALC_CONSTANTS = {
   SERVICE: 30,
   COSTS: 0.175
 }
+
+export enum ModalContent {
+  PAYMENT = 'payment',
+  CONTACTS = 'contacts',
+  FAQ = 'faq',
+  API = 'api',
+  POLITIC = 'politic',
+  AGREEMENT = 'agreement',
+}  

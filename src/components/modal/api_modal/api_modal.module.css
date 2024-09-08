@@ -1,0 +1,40 @@
+.api {
+  margin: 0 auto;
+  max-width: 480px;
+  padding:0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.api__title {
+  margin: 0;
+  margin-bottom:15px;
+  padding:0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  color:white;
+}
+
+.api__text {
+  margin: 0;
+  padding:0;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.2;
+  color:white;
+}
+
+.api__link {
+  margin: 0;
+  display:inline-block;
+  padding:0;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.2;
+  color:#ff8562;
+}
+
