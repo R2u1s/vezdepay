@@ -6,8 +6,8 @@ import { ILinkPayload, TInputValues, TButtonText, TLink, TSettings } from '../ty
 import { getCurrentDateTimeString } from "./utils";
 
 /* const URL = "https://api.kanye.rest"; */
-const API = "http://localhost:3001/api";
-/* const API = "https://booksearch.site/api"; */
+/* const API = "http://localhost:3001/api"; */
+const API = "https://booksearch.site/api";
 
 export const apiGetSettings =
   (
