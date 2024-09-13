@@ -51,7 +51,7 @@ return (
     <div className={styles.calc__string}>
       <span className={styles.calc__text}>Комиссия сервиса:</span>
       <div className={styles.calc__line}></div>
-      <span className={styles.calc__price}>{valid ? (amount ? calc.service.toFixed(2) : 0) : 0} ₽</span>
+      <span className={styles.calc__price}>{calc.service.toFixed(2)} ₽</span>
     </div>
     <div className={styles.calc__string}>
       <span className={styles.calc__text}>Банковские издержки:</span>

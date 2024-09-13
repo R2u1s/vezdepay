@@ -59,20 +59,36 @@ function App() {
   }
 
   const [validation, setValidation] = useState({
-    [InputName.LOGIN]: true,
-    [InputName.AMOUNT]: true,
-    [InputName.TG]: true,
+    [InputName.LOGIN]: false,
+    [InputName.AMOUNT]: false,
+    [InputName.TG]: false,
     approve: false,
     check: false
   });
 
+  useEffect(()=>{
+    if (validation.check) {
+      setValidation({
+        ...validation,
+        [InputName.LOGIN]: values[InputName.LOGIN].length > 0,
+        [InputName.AMOUNT]: values[InputName.AMOUNT].length > 0 && parseFloat(values[InputName.AMOUNT]) > 150,
+        [InputName.TG]: values[InputName.TG].length > 0,
+      });
+    }
+  },[values]);
+
   const checkInputs = (): boolean => {
     setValidation({
       ...validation,
+      [InputName.LOGIN]: values[InputName.LOGIN].length > 0,
+      [InputName.AMOUNT]: values[InputName.AMOUNT].length > 0 && parseFloat(values[InputName.AMOUNT]) > 150,
+      [InputName.TG]: values[InputName.TG].length > 0,
       check: true
     });
     const tempValidation = {
-      ...validation,
+      [InputName.LOGIN]: values[InputName.LOGIN].length > 0,
+      [InputName.AMOUNT]: values[InputName.AMOUNT].length > 0 && parseFloat(values[InputName.AMOUNT]) > 150,
+      [InputName.TG]: values[InputName.TG].length > 0,
       check: true
     };
     if (areAllValuesTrue(tempValidation)) {
@@ -124,7 +140,7 @@ function App() {
       <main className={styles.content}>
 
         <h2 className={styles.subtitle}>Пополняй Steam</h2>
-       {/* <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p> */}
+        {/* <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p> */}
         <Rating />
         <InputList values={values} handleChange={handleChange} validation={validation} setValidation={setValidation} />
 

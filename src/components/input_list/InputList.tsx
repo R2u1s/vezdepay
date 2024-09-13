@@ -12,7 +12,7 @@ const InputList: React.FC<any> = ({values, handleChange, validation, setValidati
 
   useEffect(()=>{
     validation.check && setValidation(updateFlagsIfEmpty(validation,values));
-    if(values[InputName.AMOUNT] < 150){
+    if(values[InputName.AMOUNT] < 150 && validation.check){
       setValidation({
         ...validation,
         [InputName.AMOUNT]: false,
@@ -31,7 +31,7 @@ const InputList: React.FC<any> = ({values, handleChange, validation, setValidati
           icon={'UserIcon'}
           value={values[InputName.LOGIN]}
           name={InputName.LOGIN}
-          error={!validation[InputName.LOGIN]}
+          error={validation.check && !validation[InputName.LOGIN]}
           errorText={'Введите логин'}
           size={'default'}
         />
@@ -44,7 +44,7 @@ const InputList: React.FC<any> = ({values, handleChange, validation, setValidati
           icon={'CardIcon'}
           value={values[InputName.AMOUNT]}
           name={InputName.AMOUNT}
-          error={!validation[InputName.AMOUNT]}
+          error={validation.check && !validation[InputName.AMOUNT]}
           errorText={values[InputName.AMOUNT] === '' ? 'Введите желаемую сумму пополнения' : 'Сумма пополнения должна быть больше 150 руб.'}
           size={'default'}
 
@@ -58,7 +58,7 @@ const InputList: React.FC<any> = ({values, handleChange, validation, setValidati
           icon={'TelegramIcon'}
           value={values[InputName.TG]}
           name={InputName.TG}
-          error={!validation[InputName.TG]}
+          error={validation.check && !validation[InputName.TG]}
           errorText={'Введите контактные данные'}
         />
       </form>

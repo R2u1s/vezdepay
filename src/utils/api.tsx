@@ -22,7 +22,6 @@ export const apiGetSettings =
       .then((response) => {
         if (response.status === 200) {
           const res = response.data[0];
-          console.log(res);
           setSettings({
             id: res.id,
             name: res.name,
