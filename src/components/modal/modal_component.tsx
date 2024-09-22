@@ -9,11 +9,11 @@ import { Politic } from './politic/politic';
 import { Agreement } from './agreement/agreement';
 import { Faq } from './faq/faq';
 
-export const ModalComponent: FC<TModalContent> = ({active, setActive, setClose, content,settings}) => {
+export const ModalComponent: FC<TModalContent> = ({active, setActive, setClose, content,settings,handleApprove}) => {
 
   return (
     <Modal active={active} setActive={setActive} setClose={setClose}>
-      {content === ModalContent.PAYMENT && <Payment settings={settings} />}
+      {content === ModalContent.PAYMENT && <Payment settings={settings} handleApprove={() => {handleApprove();setClose();}} />}
       {content === ModalContent.CONTACTS && <Contacts />}
       {content === ModalContent.API && <ApiModal />}
       {content === ModalContent.POLITIC && <Politic />}

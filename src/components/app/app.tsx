@@ -6,15 +6,13 @@ import { TelegramIcon, VkIcon } from '../icons';
 import { useForm } from '../hooks/useForm';
 import { useModal } from '../hooks/useModal';
 import { Loader } from '../loader/loader';
-import { apiGetLink, apiGetSettings } from '../../utils/api';
+import { apiGetLink, apiGetCount, apiGetSettings, apiSendRequestCard, apiSendResponseCard } from '../../utils/api';
 import { initialState, requestReducer } from '../../services/requestReducer';
-import { areAllValuesTrue, hasEmptyValue, isHttpsUrl } from '../../utils/utils';
+import { areAllValuesTrue, isHttpsUrl } from '../../utils/utils';
 import { Calc } from '../calc/calc';
 import { InputName, ModalContent } from '../../utils/constants';
 import { Footer } from '../footer/footer';
-import Modal from '../modal/modal';
-import { Contacts } from '../modal/contacts/contacts';
-import { TSettings } from '../../types/types';
+import { TSettings, TCount, TOrder } from '../../types/types';
 import { ModalComponent } from '../modal/modal_component';
 import { Rating } from '../rating/rating';
 
@@ -26,6 +24,8 @@ function App() {
   const [link, setLink] = useState<string | undefined>('');
   const [buttonText, setButtonText] = useState<string | undefined>('Пополнить');
   const [settings, setSettings] = useState<TSettings | undefined>();
+  const [count, setCount] = useState<TCount | undefined>();
+  const [order, setOrder] = useState<TOrder | undefined>();
   const [resultAmount, setResultAmount] = useState<number>(0);
   const [modalContent, setModalContent] = useState<ModalContent>(ModalContent.CONTACTS);
 
@@ -42,6 +42,7 @@ function App() {
     if (storedCart) {
       setValues(JSON.parse(storedCart));
     };
+    apiGetCount(dispatchRequest, setCount);
     apiGetSettings(dispatchRequest, setSettings, setButtonText);
   }, []);
 
@@ -66,33 +67,38 @@ function App() {
     check: false
   });
 
-  useEffect(()=>{
-    if (validation.check) {
+  useEffect(() => {
+    if (validation.check && request.successSettings && settings) {
       setValidation({
         ...validation,
         [InputName.LOGIN]: values[InputName.LOGIN].length > 0,
-        [InputName.AMOUNT]: values[InputName.AMOUNT].length > 0 && parseFloat(values[InputName.AMOUNT]) > 150,
+        [InputName.AMOUNT]: values[InputName.AMOUNT].length > 0 && parseFloat(values[InputName.AMOUNT]) > settings.min_amount,
         [InputName.TG]: values[InputName.TG].length > 0,
       });
     }
-  },[values]);
+  }, [values]);
 
   const checkInputs = (): boolean => {
-    setValidation({
-      ...validation,
-      [InputName.LOGIN]: values[InputName.LOGIN].length > 0,
-      [InputName.AMOUNT]: values[InputName.AMOUNT].length > 0 && parseFloat(values[InputName.AMOUNT]) > 150,
-      [InputName.TG]: values[InputName.TG].length > 0,
-      check: true
-    });
-    const tempValidation = {
-      [InputName.LOGIN]: values[InputName.LOGIN].length > 0,
-      [InputName.AMOUNT]: values[InputName.AMOUNT].length > 0 && parseFloat(values[InputName.AMOUNT]) > 150,
-      [InputName.TG]: values[InputName.TG].length > 0,
-      check: true
-    };
-    if (areAllValuesTrue(tempValidation)) {
-      return true;
+    if (request.successSettings && settings) {
+      setValidation({
+        ...validation,
+        [InputName.LOGIN]: values[InputName.LOGIN].length > 0,
+        [InputName.AMOUNT]: values[InputName.AMOUNT].length > 0 && parseFloat(values[InputName.AMOUNT]) > settings.min_amount,
+        [InputName.TG]: values[InputName.TG].length > 0,
+        check: true
+      });
+      const tempValidation = {
+        ...validation,
+        [InputName.LOGIN]: values[InputName.LOGIN].length > 0,
+        [InputName.AMOUNT]: values[InputName.AMOUNT].length > 0 && parseFloat(values[InputName.AMOUNT]) > settings.min_amount,
+        [InputName.TG]: values[InputName.TG].length > 0,
+        check: true
+      };
+      if (areAllValuesTrue(tempValidation)) {
+        return true;
+      } else {
+        return false;
+      }
     } else {
       return false;
     }
@@ -106,9 +112,14 @@ function App() {
       }
       if (settings.name === 'sbp') {
         setModalContent(ModalContent.PAYMENT);
+        apiSendRequestCard(values, resultAmount, dispatchRequest, setOrder, setButtonText);
         openModal();
       }
     }
+  }
+
+  const handleApprove = () => {
+    order && apiSendResponseCard(order, dispatchRequest, setButtonText);
   }
 
   const onAgreeStringClick = () => {
@@ -141,8 +152,8 @@ function App() {
 
         <h2 className={styles.subtitle}>Пополняй Steam</h2>
         {/* <p className={styles.paragraph}>При первом пополнении,<br />рекомендуем ознакомиться с разделом FAQ</p> */}
-        <Rating />
-        <InputList values={values} handleChange={handleChange} validation={validation} setValidation={setValidation} />
+        <Rating count={count!} request={request} />
+        <InputList values={values} handleChange={handleChange} validation={validation} setValidation={setValidation} settings={settings} />
 
         <Calc amount={values[InputName.AMOUNT]} loader={request.requestSettings} service_fee={settings?.service_fee} costs={settings?.costs} setResultAmount={setResultAmount} />
 
@@ -179,7 +190,7 @@ function App() {
       </main>
       <Footer onClickElement={openModal} setModalContent={setModalContent} />
       <img src={require('../../images/men.png')} className={styles.men} />
-      {<ModalComponent active={isModalOpen} setActive={openModal} setClose={closeModal} content={modalContent} settings={settings} />}
+      {<ModalComponent active={isModalOpen} setActive={openModal} setClose={closeModal} content={modalContent} settings={settings} handleApprove={handleApprove} />}
     </div>
 
   );

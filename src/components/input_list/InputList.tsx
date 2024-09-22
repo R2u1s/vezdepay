@@ -4,7 +4,7 @@ import { Input } from '../input/input';
 import { InputName } from '../../utils/constants';
 import { updateFlagsIfEmpty } from '../../utils/utils';
 
-const InputList: React.FC<any> = ({values, handleChange, validation, setValidation}) => {
+const InputList: React.FC<any> = ({values, handleChange, validation, setValidation, settings}) => {
 
   const saveHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -12,7 +12,7 @@ const InputList: React.FC<any> = ({values, handleChange, validation, setValidati
 
   useEffect(()=>{
     validation.check && setValidation(updateFlagsIfEmpty(validation,values));
-    if(values[InputName.AMOUNT] < 150 && validation.check){
+    if(settings && values[InputName.AMOUNT] < settings.min_amount && validation.check){
       setValidation({
         ...validation,
         [InputName.AMOUNT]: false,
@@ -45,7 +45,7 @@ const InputList: React.FC<any> = ({values, handleChange, validation, setValidati
           value={values[InputName.AMOUNT]}
           name={InputName.AMOUNT}
           error={validation.check && !validation[InputName.AMOUNT]}
-          errorText={values[InputName.AMOUNT] === '' ? 'Введите желаемую сумму пополнения' : 'Сумма пополнения должна быть больше 150 руб.'}
+          errorText={values[InputName.AMOUNT] === '' ? 'Введите желаемую сумму пополнения' : `Сумма пополнения должна быть больше ${settings ? settings.min_amount : '150'} руб.`}
           size={'default'}
 
         />

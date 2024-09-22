@@ -33,6 +33,10 @@
   color:white;
 }
 
+.rating__text_width {
+  min-width: 128px;
+}
+
 .rating__text_violet {
   color:violet;
 }

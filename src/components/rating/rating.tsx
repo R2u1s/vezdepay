@@ -1,7 +1,8 @@
-import FC from "react";
+import {FC} from "react";
 import styles from './rating.module.css';
+import { TRating } from "../../types/types";
 
-export const Rating = () => {
+export const Rating:FC<TRating> = ({count,request}) => {
 
   return (
     <div className={styles.rating}>
@@ -14,7 +15,7 @@ export const Rating = () => {
         </svg>
         <span className={styles.rating__text}>5.0</span>
       </div>
-      <span className={styles.rating__text}>Продано: 232361</span>
+      <span className={`${styles.rating__text} ${styles.rating__text_width}`}>Пополнений: {request.requestCount ? ' ' : request.successCount ? count : '232361' }</span>
       <div className={styles.rating__flex}>
         <svg
           className={styles.rating__text_violet}

@@ -6,12 +6,18 @@ export type TRequest = {
   requestSettings: boolean,
   requestLink: boolean,
   requestPayment: boolean,
+  requestCount: boolean,
+  requestApprove: boolean,
   successSettings: boolean,
   successLink: boolean,
   successPayment: boolean,
+  successCount: boolean,
+  successApprove: boolean,
   errorSettings: boolean,
   errorLink:boolean,
   errorPayment:boolean,
+  errorCount:boolean,
+  errorApprove:boolean
 }
 
 export type TAction = Action;
@@ -24,8 +30,11 @@ export type TSettings = {
   card_number?: string,
   card_bank?: string,
   phone_number?: string,
-  phone_bank?: string
+  phone_bank?: string,
+  min_amount: number
 }
+
+export type TCount = number;
 
 export type TSettingsResponse = {
   id:string,
@@ -72,5 +81,22 @@ export interface TModal {
 
 export interface TModalContent extends TModal {
   content: ModalContent,
-  settings: TSettings | undefined
+  settings: TSettings | undefined,
+  handleApprove: () => void
 }
+
+export type TRating = {
+  count:TCount,
+  request:TRequest
+}
+
+export interface TCardRequestPayload {
+  order_id: string,
+  login: string,
+  amount: number,
+  contact: string,
+}
+
+export interface TOrder extends TCardRequestPayload {};
+
+export interface TCardResponsePayload extends TCardRequestPayload {};
