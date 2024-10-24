@@ -1,5 +1,6 @@
 import { TErrorInput, TInputValues } from "../types/types";
 import { InputName } from "./constants";
+import axios from "axios";
 
 export function isHttpsUrl(url: string): boolean {
   return url.startsWith('https://');
@@ -41,3 +42,13 @@ export function getCurrentDateTimeString() {
   
   return `${day}${month}${year}${hours}${minutes}${seconds}`;
 }
+
+export const logUserIp = async () => {
+  try {
+    const response = await axios.get('https://api.ipify.org?format=json');
+    return response.data.ip;
+  } catch (error) {
+    console.error('Ошибка при получении IP:', error);
+    throw error;
+  }
+};

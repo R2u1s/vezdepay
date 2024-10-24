@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import styles from './payment.module.css';
-import { TRequest, TSettings } from "../../../types/types";
+import { TSettings } from "../../../types/types";
 
 export const Payment: FC<{ settings: TSettings | undefined, handleApprove: () => void }> = ({ settings, handleApprove }) => {
 

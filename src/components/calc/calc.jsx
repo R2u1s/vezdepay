@@ -58,6 +58,7 @@ return (
       <div className={styles.calc__line}></div>
       <span className={styles.calc__price}>{valid ? (amount ? calc.costs.toFixed(2) : 0) : 0} ₽</span>
     </div>
+    <p className={styles.calc__minitext}>Курс устанавливается поставщиком услуг и может отличаться от значений на сайте</p>
   </section>
 );
 };

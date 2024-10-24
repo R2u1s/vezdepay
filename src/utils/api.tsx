@@ -2,12 +2,12 @@ import axios from "axios";
 import { Dispatch, SetStateAction } from "react";
 
 import { Action, InputName } from "./constants";
-import { ILinkPayload, TInputValues, TButtonText, TLink, TSettings, TCount, TCardRequestPayload, TOrder, TCardResponsePayload } from '../types/types';
-import { getCurrentDateTimeString } from "./utils";
+import { ILinkPayload, TInputValues, TButtonText, TLink, TSettings, TCount, TCardRequestPayload, TOrder, TCardResponsePayload, TFkRequestPayload } from '../types/types';
+import { getCurrentDateTimeString,logUserIp } from "./utils";
 
 /* const URL = "https://api.kanye.rest"; */
-const API = "http://localhost:3001/api";
-/* const API = "https://booksearch.site/api"; */
+/* const API = "http://localhost:3001/api"; */
+const API = "https://vezdepay.com/api";
 
 export const apiGetCount = async (
   dispatch: Dispatch<Action>,
@@ -53,7 +53,8 @@ export const apiGetSettings = async (
           card_bank: res.card_bank,
           phone_number: res.phone_number,
           phone_bank: res.phone_bank,
-          min_amount: parseFloat(res.min_amount)
+          min_amount: parseFloat(res.min_amount),
+          content:res.content
         });
         dispatch(Action.SUCCESS_SETTINGS);
       } else {
@@ -68,8 +69,7 @@ export const apiGetSettings = async (
     });
 };
 
-
-export const apiGetLink =
+export const apiGetLinkNicepay =
   (
     values: TInputValues,
     resultAmount: number,
@@ -173,3 +173,134 @@ export const apiSendResponseCard = async (
       setButtonText(`Ошибка: ${error}`);
     });
 };
+
+export const apiSendRequestCrypto = async (
+  values: TInputValues,
+  resultAmount: number,
+  dispatch: Dispatch<Action>,
+  setButtonText: Dispatch<SetStateAction<TButtonText | undefined>>
+) => {
+
+  dispatch(Action.REQUEST_LINK);
+
+  const payload: TCardRequestPayload = {
+    order_id: values[InputName.LOGIN] + getCurrentDateTimeString(),
+    login: values[InputName.LOGIN],
+    amount: Math.floor(resultAmount),
+    contact: values[InputName.TG]
+  };
+
+  return axios.post(`${API}/crypto_request`, payload)
+    .then((response) => {
+      if (response.status === 200) {
+        dispatch(Action.SUCCESS_LINK);
+      } else {
+        dispatch(Action.ERROR_LINK);
+        setButtonText(`Ошибка при создании заявки`);
+      }
+    })
+    .catch(error => {
+      console.log(`Error: ${error}`);
+      dispatch(Action.ERROR_LINK);
+      setButtonText(`Ошибка: ${error}`);
+    });
+};
+
+export const apiGetLinkLava =
+  (
+    values: TInputValues,
+    resultAmount: number,
+    dispatch: Dispatch<Action>,
+    setLink: Dispatch<SetStateAction<TLink | undefined>>,
+    setButtonText: Dispatch<SetStateAction<TButtonText | undefined>>
+  ) => {
+
+    dispatch(Action.REQUEST_LINK);
+
+    const payload: TCardRequestPayload = {
+      order_id: values[InputName.LOGIN] + getCurrentDateTimeString(),
+      login: values[InputName.LOGIN],
+      amount: Math.floor(resultAmount),
+      contact: values[InputName.TG]
+    };
+
+    return axios.post(`${API}/lava_request`, payload)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response);
+          if (response.data.hasOwnProperty('url')) {
+            setButtonText('Перенаправляем на сервис оплаты');
+            dispatch(Action.SUCCESS_LINK);
+            setLink(response.data.url);
+          } else if (response.data.hasOwnProperty('error')) {
+            dispatch(Action.ERROR_LINK);
+            setButtonText(`Ошибка: ${response.data.error}`);
+          } else {
+            dispatch(Action.ERROR_LINK);
+            setButtonText(`Ошибка при переходе на платежный сервис`);
+          }
+        } else {
+          dispatch(Action.ERROR_LINK);
+          setButtonText(`Ошибка при переходе на платежный сервис`);
+        }
+      })
+      .catch(error => {
+        console.log(`Error: ${error}`);
+        dispatch(Action.ERROR_LINK);
+        setButtonText(`Ошибка: ${error}`);
+      });
+  };
+
+  export const apiGetLinkFk = async (
+    values: TInputValues,
+    resultAmount: number,
+    dispatch: Dispatch<Action>,
+    setLink: Dispatch<SetStateAction<TLink | undefined>>,
+    setButtonText: Dispatch<SetStateAction<TButtonText | undefined>>
+  ) => {
+
+    dispatch(Action.REQUEST_LINK);
+
+    let ipAddress = '';
+
+    try {
+      ipAddress = await logUserIp();
+    } catch (error) {
+      dispatch(Action.ERROR_LINK);
+      setButtonText(`Ошибка при определении IP`);
+    }
+
+    const payload: TFkRequestPayload = {
+      order_id: values[InputName.LOGIN] + getCurrentDateTimeString(),
+      login: values[InputName.LOGIN],
+      amount: Math.floor(resultAmount),
+      contact: values[InputName.TG],
+      ip: ipAddress
+    };
+
+    return axios.post(`${API}/fk_request`, payload)
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response);
+          if (response.data.hasOwnProperty('url')) {
+            setButtonText('Перенаправляем на сервис оплаты');
+            dispatch(Action.SUCCESS_LINK);
+            setLink(response.data.url);
+          } else if (response.data.hasOwnProperty('error')) {
+            dispatch(Action.ERROR_LINK);
+            setButtonText(`Ошибка: ${response.data.error}`);
+          } else {
+            dispatch(Action.ERROR_LINK);
+            setButtonText(`Ошибка при переходе на платежный сервис`);
+          }
+        } else {
+          dispatch(Action.ERROR_LINK);
+          setButtonText(`Ошибка при переходе на платежный сервис`);
+        }
+      })
+      .catch(error => {
+        console.log(`Error: ${error}`);
+        dispatch(Action.ERROR_LINK);
+        setButtonText(`Ошибка: ${error}`);
+      });
+  };

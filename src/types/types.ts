@@ -1,4 +1,4 @@
-import { Action, InputName, ModalContent } from "../utils/constants";
+import { Action, InputName, ModalSection, PAYMENT_METHOD } from "../utils/constants";
 
 export type TInputValues = Record<InputName, string>;
 
@@ -22,6 +22,8 @@ export type TRequest = {
 
 export type TAction = Action;
 
+export type TContent = Record<string,string>;
+
 export type TSettings = {
   id:string,
   name: string,
@@ -31,7 +33,9 @@ export type TSettings = {
   card_bank?: string,
   phone_number?: string,
   phone_bank?: string,
-  min_amount: number
+  min_amount: number,
+  pay_method?: string,
+  content?: TContent
 }
 
 export type TCount = number;
@@ -80,7 +84,7 @@ export interface TModal {
 }
 
 export interface TModalContent extends TModal {
-  content: ModalContent,
+  section: ModalSection,
   settings: TSettings | undefined,
   handleApprove: () => void
 }
@@ -97,6 +101,16 @@ export interface TCardRequestPayload {
   contact: string,
 }
 
+export interface TFkRequestPayload extends TCardRequestPayload {
+  ip: string,
+}
+
 export interface TOrder extends TCardRequestPayload {};
 
 export interface TCardResponsePayload extends TCardRequestPayload {};
+
+export type TMethod = {
+  name:string,
+  url:string,
+  value:string
+}

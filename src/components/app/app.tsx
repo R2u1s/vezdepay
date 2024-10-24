@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useReducer } from 'react';
 import styles from "./app.module.css";
 import InputList from '../input_list/InputList';
-import { PAYMENT_METHOD } from '../constants/payments';
+import { PAYMENT_METHOD } from '../../utils/constants';
 import { TelegramIcon, VkIcon } from '../icons';
 import { useForm } from '../hooks/useForm';
 import { useModal } from '../hooks/useModal';
 import { Loader } from '../loader/loader';
-import { apiGetLink, apiGetCount, apiGetSettings, apiSendRequestCard, apiSendResponseCard } from '../../utils/api';
+import { apiGetLinkNicepay, apiGetCount, apiGetSettings, apiSendRequestCard, apiSendResponseCard, apiSendRequestCrypto, apiGetLinkLava, apiGetLinkFk } from '../../utils/api';
 import { initialState, requestReducer } from '../../services/requestReducer';
 import { areAllValuesTrue, isHttpsUrl } from '../../utils/utils';
 import { Calc } from '../calc/calc';
-import { InputName, ModalContent } from '../../utils/constants';
+import { InputName, ModalSection } from '../../utils/constants';
 import { Footer } from '../footer/footer';
-import { TSettings, TCount, TOrder } from '../../types/types';
+import { TSettings, TCount, TOrder, TMethod } from '../../types/types';
 import { ModalComponent } from '../modal/modal_component';
 import { Rating } from '../rating/rating';
 
 function App() {
 
-  const [payMethod, setPayMethod] = useState(PAYMENT_METHOD[0].name);
+  const [payMethod, setPayMethod] = useState(PAYMENT_METHOD[0].value);
   const [agree, setAgree] = useState<boolean>(false);
   const [request, dispatchRequest] = useReducer(requestReducer, initialState);
   const [link, setLink] = useState<string | undefined>('');
@@ -27,7 +27,7 @@ function App() {
   const [count, setCount] = useState<TCount | undefined>();
   const [order, setOrder] = useState<TOrder | undefined>();
   const [resultAmount, setResultAmount] = useState<number>(0);
-  const [modalContent, setModalContent] = useState<ModalContent>(ModalContent.CONTACTS);
+  const [modalSection, setModalSection] = useState<ModalSection>(ModalSection.CONTACTS);
 
   const { isModalOpen, openModal, closeModal } = useModal();
 
@@ -44,10 +44,14 @@ function App() {
     };
     apiGetCount(dispatchRequest, setCount);
     apiGetSettings(dispatchRequest, setSettings, setButtonText);
-  }, []);
+  }, [setValues]);
 
-  const onClick = (name: string): void => {
-    setPayMethod(name);
+  const onMethodClick = (item: TMethod): void => {
+    setPayMethod(item.value);
+    item.value && settings && setSettings({
+      ...settings,
+      pay_method: item.value
+    });
   }
 
   const onAgreeClick = (): void => {
@@ -76,7 +80,7 @@ function App() {
         [InputName.TG]: values[InputName.TG].length > 0,
       });
     }
-  }, [values]);
+  }, [values,request.successSettings,settings,validation]);
 
   const checkInputs = (): boolean => {
     if (request.successSettings && settings) {
@@ -107,13 +111,20 @@ function App() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (checkInputs() && request.successSettings && settings) {
-      if (settings.name === 'nicepay') {
-        apiGetLink(values, resultAmount, dispatchRequest, setLink, setButtonText);
-      }
-      if (settings.name === 'sbp') {
-        setModalContent(ModalContent.PAYMENT);
+      if (payMethod === 'crypto') {
+        setModalSection(ModalSection.CRYPTO);
+        apiSendRequestCrypto(values, resultAmount, dispatchRequest, setButtonText);
+        openModal();
+      } else if (settings.name === 'nicepay') {
+        apiGetLinkNicepay(values, resultAmount, dispatchRequest, setLink, setButtonText);
+      } else if (settings.name === 'sbp') {
+        setModalSection(ModalSection.PAYMENT);
         apiSendRequestCard(values, resultAmount, dispatchRequest, setOrder, setButtonText);
         openModal();
+      } else if (settings.name === 'lava') {
+        apiGetLinkLava(values, resultAmount, dispatchRequest, setLink, setButtonText);
+      } else if (settings.name === 'freekassa') {
+        apiGetLinkFk(values, resultAmount, dispatchRequest, setLink, setButtonText);
       }
     }
   }
@@ -123,12 +134,12 @@ function App() {
   }
 
   const onAgreeStringClick = () => {
-    setModalContent(ModalContent.AGREEMENT);
+    setModalSection(ModalSection.AGREEMENT);
     openModal();
   }
 
   const onFaqStringClick = () => {
-    setModalContent(ModalContent.FAQ);
+    setModalSection(ModalSection.FAQ);
     openModal();
   }
 
@@ -137,15 +148,15 @@ function App() {
       localStorage.setItem('payment', JSON.stringify(values));
       window.location.href = link;
     }
-  }, [link]);
+  }, [link,request.successLink,values]);
 
   return (
     <div className={styles.app}>
       <header className={styles.header}>
         <h1 className={styles.title}>VEZDEPAY</h1>
         <div className={styles.header__socials}>
-          <div style={{ cursor: 'pointer' }}>{VkIcon({ type: 'socials' })}</div>
-          <a href="https://t.me/Vezdepaycom" target="_blank" style={{ cursor: 'pointer', marginTop: '2px' }}>{TelegramIcon({ type: 'socials' })}</a>
+          <a href="https://vk.com/topic-227183820_53115795" target="_blank" rel="noreferrer" style={{ cursor: 'pointer' }}>{VkIcon({ type: 'socials' })}</a>
+          <a href="https://t.me/Vezdepaycom" target="_blank" rel="noreferrer" style={{ cursor: 'pointer', marginTop: '2px' }}>{TelegramIcon({ type: 'socials' })}</a>
         </div>
       </header>
       <main className={styles.content}>
@@ -161,9 +172,9 @@ function App() {
 
         <ul className={styles.payments}>
           {PAYMENT_METHOD.map((item, index) => {
-            return <li className={`${styles.payment} ${item.name === payMethod ? styles.payment__active : ""}`} key={index}>
-              <button className={styles.payments__icon} onClick={() => onClick(item.name)} style={{ backgroundImage: `url(${item.url})` }}></button>
-              {item.name === payMethod && <span className={styles.payment__checkmark}>✔</span>}
+            return <li className={`${styles.payment} ${item.value === payMethod ? styles.payment__active : ""}`} key={index}>
+              <button className={styles.payments__icon} onClick={() => onMethodClick(item)} style={{ backgroundImage: `url(${item.url})` }}></button>
+              {item.value === payMethod && <span className={styles.payment__checkmark}>✔</span>}
               <span className={styles.payments__name}>{item.name}</span>
             </li>
           })}
@@ -188,11 +199,18 @@ function App() {
         </form>
 
       </main>
-      <Footer onClickElement={openModal} setModalContent={setModalContent} />
-      <img src={require('../../images/men.png')} className={styles.men} />
-      {<ModalComponent active={isModalOpen} setActive={openModal} setClose={closeModal} content={modalContent} settings={settings} handleApprove={handleApprove} />}
-    </div>
+      <Footer onClickElement={openModal} setModalSection={setModalSection} />
+      <img src={require('../../images/men.png')} alt={'a character from the game'} className={styles.men} />
+      {<ModalComponent
+        active={isModalOpen}
+        setActive={openModal}
+        setClose={closeModal}
+        section={modalSection}
+        settings={settings}
+        handleApprove={handleApprove}
+      />}
 
+    </div>
   );
 }
 

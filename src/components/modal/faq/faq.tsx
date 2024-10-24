@@ -1,13 +1,13 @@
-import FC from "react";
+import { FC } from 'react';
 import styles from './faq.module.css';
 
-export const Faq = () => {
+export const Faq: FC<{ content: string }> = ({ content }) => {
 
   return (
     <div className={styles.faq}>
       <h3 className={styles.faq__title}>FAQ</h3>
       <div className={styles.faq__container}>
-        <h4 className={styles.faq__subtitle}>ВАЖНО! Требования к аккаунту</h4>
+        {/*  <h4 className={styles.faq__subtitle}>ВАЖНО! Требования к аккаунту</h4>
         <span className={styles.faq__text}>Есть перечень требований к аккаунту, соответствие которых позволит нам совершить пополнение баланса: 
         Страной Вашего аккаунта должна одна из стран СНГ (Казахстан, Узбекистан, Кыргыстан, Россия и т.д). Для аккаунтов со странами Китай, Турция 
         и другими, не входящими в СНГ странам — пополнение недоступно.</span>
@@ -41,7 +41,8 @@ export const Faq = () => {
         Если Вам не поступили средства на баланс в течении 10 минут, пожалуйста обратитесь в Техническую поддержку (виджет справа в углу экрана)</span>
         <h4 className={styles.faq__subtitle}>Что такое "логин"?</h4>
         <span className={styles.faq__text}>Логин — это то что вы вводите при авторизации, у каждого пользователя он уникальный, а 
-        никнейм вы можете менять по своему усмотрению. Людей с ником QWERTY может быть сотни. Не перепутайте ваш логин и никнейм.</span>
+        никнейм вы можете менять по своему усмотрению. Людей с ником QWERTY может быть сотни. Не перепутайте ваш логин и никнейм.</span> */}
+        <div dangerouslySetInnerHTML={{ __html: content }} />
       </div>
     </div>
   );
